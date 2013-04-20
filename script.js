@@ -7,7 +7,7 @@
       function init(){
         iconTestData = [];
         $.ajax({
-          url: "https://www.googleapis.com/fusiontables/v1/query?sql=SELECT%20nombre,cargoNominal,fechaInicioYear,fechaFinYear,territorio%20FROM%201ml67qtQMAmoyN8s7Qw9UhU68rIRgWwTmc2rnRc8 ORDER BY nombre&key=AIzaSyADM7-k_4jHBrqjQGlsny1YDqxX1BGPEXk",
+          url: "https://www.googleapis.com/fusiontables/v1/query?sql=SELECT%20nombre,cargoNominal,fechaInicioYear,fechaFinYear,territorio%20FROM%201u3Q0PPtatQbnLBgV9liDNgCcHJk7Uy6kD7ULEYw ORDER BY nombre&key=AIzaSyADM7-k_4jHBrqjQGlsny1YDqxX1BGPEXk",
           dataType : "jsonp",
           crossDomain : true,
           context: document.body

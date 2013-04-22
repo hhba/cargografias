@@ -20,8 +20,8 @@
         margin = {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
-        itemHeight = 20,
-        itemMargin = 5
+        itemHeight = 15,
+        itemMargin = 1
       ;
 
     function timeline (gParent) {
@@ -90,7 +90,17 @@
         d.forEach( function(datum, index){
           var data = datum.times;
           var hasLabel = (typeof(datum.label) != "undefined");
-
+		  var queColor = "#F88";
+		  var itemHeightPlus = 0;
+		  
+		if (datum.cargoTipo == "legislativo")
+			{queColor = "#88F";
+			}else{
+				queColor = "#F88";
+				}
+				if (datum.cargo == "presidente")
+			{queColor = "red";
+			}
           g.selectAll("svg").data(data).enter()
             .append(display)
             .attr('x', getXPos)
@@ -102,7 +112,8 @@
             .attr("cx", getXPos)
             .attr("r", itemHeight/2)
             .attr("height", itemHeight)
-            .style("fill", colorCycle(index))
+			
+            .style("fill", queColor)
             .on("mousemove", function (d, i) {
               hover(d, index, datum);
             })

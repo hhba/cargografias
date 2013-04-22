@@ -9,10 +9,13 @@
       font-family: sans-serif;
       font-size: 10px;
     }
-
+/*	rect {
+		fill:#0066FF !important; 
+	}*/
     .timeline-label {
       font-family: sans-serif;
       font-size: 12px;
+	
     }
     
     #timeline2 .axis {
@@ -25,10 +28,15 @@
 
     .coloredDiv {
       height:20px; width:20px; float:left;
+
     }
 
     #hoverInfo {
       position: fixed;
-      right: 0px;
-      top: 0px; 
+      right: 30px;
+      top: 30px; 
+	  padding:20px;
+	  background-color:#77FFFF;
+	  border:dotted 1px;
     }
+	

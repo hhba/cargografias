@@ -8,30 +8,25 @@
  window.onload = function() {    init(); }
 	 
 	     
-	   function init(){
-		  
-		  // ACA USA TABLETOP PARA TRAER LOS DATOS DE LA SPREADSHEET A UN HERMOSO ARRAY. Cuando termina de cargar los datos, llama a la funcion renderD3();
-		  
-		  if(localStorage && localStorage.cargoData){
-			renderD3(JSON.parse(localStorage.cargoData));
-		  }else{
-
-			  Tabletop.init( { key: "https://docs.google.com/spreadsheet/pub?key=0Av8QEY2w-qTYdFViaG5ULTlUQ1Q4M3AxS1NvcWI0UlE&single=true&gid=0&output=html",
-							 callback: function(data){
-							 	if(localStorage){
-							 		localStorage.cargoData = JSON.stringify(data);
-							 	}
-							 	renderD3(data);
-							 },
-	                         simpleSheet: true } );
-
-		 }
-	}
+	   function init(){ 		  // ACA USA TABLETOP PARA TRAER LOS DATOS DE LA SPREADSHEET A UN HERMOSO ARRAY. Cuando termina de cargar los datos, llama a la funcion renderD3();
+			  if(localStorage && localStorage.cargoData){
+				renderD3(JSON.parse(localStorage.cargoData));
+			  }else{
+				  Tabletop.init( { key: "https://docs.google.com/spreadsheet/pub?key=0Av8QEY2w-qTYdFViaG5ULTlUQ1Q4M3AxS1NvcWI0UlE&single=true&gid=0&output=html",
+								 callback: function(data){
+									if(localStorage){
+										localStorage.cargoData = JSON.stringify(data);
+									}
+									renderD3(data);
+								 },
+								 simpleSheet: true } );
+			 }
+		}
 	  
 
 		function getAniosMasUsados(corte){
 			var anios = iconTestData.map(function(cargo){return parseInt(cargo.times.starting_time)});
-			anios.concat(iconTestData.map(function(cargo){return parseInt(cargo.times.ending_time)}));
+				anios.concat(iconTestData.map(function(cargo){return parseInt(cargo.times.ending_time)}));
 			var i, count = {};
 			for(i=0;i<anios.length;i++){
 				if(count[anios[i]]){
@@ -92,13 +87,13 @@
 						.rangeRound([1,svgWidth]); // ANCHO MAXIMO DEL CUADRO EN PIXELES
 			
 			
-//*** ARMADO DEL SVG ****************			
+	//*** ARMADO DEL SVG ****************			
 			var svg = d3.select("#timeline").append("svg")	
 						.attr("width", svgWidth)
 						.attr("height", svgHeight)
 
 
-//*** CIRCULITO QUE MARCA EL AÑO CUANDO EL MOUSE SE MUEVE ****************
+	//*** CIRCULITO QUE MARCA EL AÑO CUANDO EL MOUSE SE MUEVE ****************
 			var yearMarker = svg.append("g")
 						.attr("class", "yearMarker")
 						.style("display","none")
@@ -127,12 +122,12 @@
 						.attr("class", "itemsCargo")
  						.attr("transform", function(d, i) {
 									if (!d.dura || (d.times.starting_time+d.dura >= d.times.ending_time)){
-										var posY = d.cargoID*(itemHeight+spacingY);										
+										var posY = d.cargoID*(itemHeight + spacingY);										
 									}else{
-										var posY =d.cargoID*(itemHeight+spacingY+itemHeight);
+										var posY = d.cargoID*(itemHeight + spacingY + itemHeight);
 									}
-									var posY = d.cargoID*(itemHeight+spacingY);	
-								return ("translate("+ xScale(d.times.starting_time) + ","+ posY + ")");
+									var posY = d.cargoID*(itemHeight + spacingY);	
+								return ("translate(" + xScale(d.times.starting_time) + "," + posY + ")");
 									
 								})
 
@@ -142,13 +137,13 @@
 									if(d.cargo.indexOf("presidente")){
 										return d.cargoTipo;
 									}else{
-										return "presidente " +d.cargoTipo;
+										return "presidente " + d.cargoTipo;
 									}
 								})
 	
 						.attr("height", itemHeight)
 						.attr("width", function(d, i) {
-									var finalWidth = xScale(d.times['ending_time'])-xScale(d.times['starting_time']);
+									var finalWidth = xScale(d.times['ending_time']) - xScale(d.times['starting_time']);
 									if (finalWidth > 0){
 										return finalWidth-1;									
 									} else {
@@ -176,14 +171,14 @@
 						
 							
 			var ticksAxis = getAniosMasUsados(20).map(function(item){return item.anio})
-			 	ticksAxis.push(primerStartingYear-3,ultimoEndingYear+3);
+			 	ticksAxis.push(primerStartingYear - 3 , ultimoEndingYear + 3);
 			var xAxis = d3.svg.axis()
 						.scale(xScale)
 						.orient("bottom")
 						.tickFormat(d3.format("0"))
 						.tickValues(ticksAxis)
 				svg.append("g").attr("class", "axis")
-						.attr("transform", "translate(0,"+marginSVG+")")
+						.attr("transform", "translate(0," + marginSVG + ")")
 						.call(xAxis);
 					
 					

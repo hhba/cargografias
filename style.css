@@ -9,9 +9,7 @@
       font-family: sans-serif;
       font-size: 10px;
     }
-/*	rect {
-		fill:#0066FF !important; 
-	}*/
+
     .timeline-label {
       font-family: sans-serif;
       font-size: 12px;
@@ -30,7 +28,18 @@
       height:20px; width:20px; float:left;
 
     }
+	
+	.yearMarker {
+		fill: none;
+		stroke:black;
+		stroke-width:2px;
+	}
 
+	svg {
+		 pointer-events: all;
+	}
+	
+	
     #hoverInfo {
       position: fixed;
       right: 30px;
@@ -40,3 +49,39 @@
 	  border:dotted 1px;
     }
 	
+	.itemsCargo{
+		 -moz-user-select: -moz-none;
+		   -khtml-user-select: none;
+		   -webkit-user-select: none;
+		   cursor:cell;
+	
+		}
+	.ejecutivo{
+		fill:#F00;
+		fill-opacity:50%;
+	}
+
+	.legislativo{
+		fill:#00F;
+		fill-opacity:50%;
+	}
+	
+	.presidente{
+		fill:#F00;
+		fill-opacity:100%;
+		color:#FF0;
+	}
+
+	.miniLabels{
+		font-family:Tahoma, Geneva, sans-serif;
+		font-size:9px;
+		fill:#FFF;
+		text-rendering: optimizeSpeed;
+	}
+	.microLabels{
+		font-size:8px;
+		fill-opacity:0.7;
+	}
+	svg {
+  shape-rendering: crispEdges;
+}

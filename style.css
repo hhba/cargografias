@@ -59,11 +59,13 @@
 	.ejecutivo{
 		fill:#F00;
 		fill-opacity:50%;
+		background-color:#FDACB8;		
 	}
 
 	.legislativo{
 		fill:#00F;
 		fill-opacity:50%;
+	  background-color:#AACAFF;
 	}
 	
 	.presidente{
@@ -93,14 +95,17 @@
 		font-family:Tahoma, Geneva, sans-serif;
 	}
 
-div.tooltip {   
+#tooltip {   
   position: absolute;           
   text-align: center;           
   padding: 5px;
   min-width: 100px;             
   font: 12px sans-serif;        
-  background: lightsteelblue;   
   border: 0px;      
-  border-radius: 8px;           
-  pointer-events: none;         
+  border-radius: 4px;           
+  pointer-events: none;
+       
+}
+.fecha{
+	font: 10px sans-serif;
 }

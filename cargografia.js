@@ -58,7 +58,9 @@ var App;
                 cargo: e['cargonominal'],
                 territorio: e['territorio'],
                 cargoTipo: e['cargotipo'],
-                dura: Number(e['duracioncargo'])
+                dura: Number(e['duracioncargo']),
+				cargoExt: e['cargoext'],
+				offsetY: 0//(e['fechainicioyear']+e['cargoext']
             };
             if(!resp[cargoID]) {
                 totalPoliticos++;
@@ -79,8 +81,9 @@ var App;
         var newData = App.preFilterData(data), //pre-procesa la data, retorna un objeto con varios datos
             marginSVG = 10,
             itemHeight = 25,
-            spacingY = 10,
-            svgWidth = 2000,
+            spacingY = 20,
+            svgWidth = 1600,
+			lineasDivisorias = 1,
             svgHeight = newData.totalRenglones * (itemHeight + spacingY + 1 ),
             primerStartingYear = newData.limiteInferior,
             ultimoEndingYear = newData.limiteSuperior;
@@ -105,7 +108,7 @@ var App;
 
         //Crea el tooltip            
         var tooltip = d3.select("body").append("div")   
-                        .attr("class", "tooltip")               
+                        .attr("id", "tooltip")               
                         .style("opacity", 0);
 
         // COSAS QUE PASAN CUANDO EL MOUSE SE MUEVE 
@@ -133,6 +136,7 @@ var App;
                                     politico = svg.select('#politico-'+d.value.cargoID);//Grupo de cada político
 
                                 //Agrego la línea
+								if(lineasDivisorias){
                                 politico
                                 .append("line")
                                 .attr("x1",0)
@@ -140,6 +144,7 @@ var App;
                                 .attr("x2",svgWidth)
                                 .attr("y2",itemHeight + (spacingY/2) )
                                 .attr("stroke","#CCC");
+								}
 
                                 //Agrego el nombre del político
                                 politico
@@ -160,7 +165,10 @@ var App;
                                     .data(d.value.cargos)
                                     .enter()
                                     .append("g")
-									.attr("transform", function(d){return ("translate(" + xScale(d.desde) + ",0)");})
+					
+								cargos.attr("transform", function(d){
+										return ("translate(" + xScale(d.desde) + ","+d.offsetY*itemHeight+")");
+										})
 								
 								var rectangleCargo = cargos.append("rect")
                                     .attr("class", function(d, i) {
@@ -196,12 +204,16 @@ var App;
                                     .attr("class","miniLabels microLabels")
 
                                 //Agrego funcionalidad del tooltip
-                                cargos.on("mouseover", function(d) {      
+                                cargos.on("mouseover", function(d) {
+										var innerHTML = "<b>"+d.nombre+"</b><br/>"+d.cargo.toUpperCase();
+										if(d.cargoExt){ innerHTML += "<br>"+d.cargoExt};									
+										innerHTML += "<span class=fecha><br/>"+d.desde+" - "+d.hasta +"<br/>"+d.territorio;        
+										tooltip.attr("class",d.cargoTipo)
                                         tooltip.transition()        
-                                            .duration(200)      
-                                            .style("opacity", .9);      
-                                        tooltip.html("<b>"+d.nombre+"</b><br/>"+d.cargo.toUpperCase()+"<br/>"+d.desde+" - "+d.hasta)  
-                                            .style("left", (d3.event.pageX) + "px")     
+                                            .duration(100)      
+                                            .style("opacity", .9)
+										tooltip.html(innerHTML)      
+											.style("left", (d3.event.pageX) + "px")     
                                             .style("top", (d3.event.pageY - 28) + "px");    
                                         })
                                     .on("mouseout", function(d) {       
@@ -220,6 +232,7 @@ var App;
         //Dibuja los años y los ticks                    
         var ticksAxis = newData.anios.map(function(item){return item.anio})
             ticksAxis.push(primerStartingYear - 3 , ultimoEndingYear + 3);
+            ticksAxis.push(1976 , 1983);			
         var xAxis = d3.svg.axis()
                         .scale(xScale)
                         .orient("bottom")

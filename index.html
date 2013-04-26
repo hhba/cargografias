@@ -3,188 +3,14 @@
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
   <script src="d3.v3.min.js"></script>
   <script type="text/javascript" src="tabletop.js"></script>
+  <script type="text/javascript" src="cargografia.js"></script>
   <script>
 
- window.onload = function() {    init(); }
+  	//Inicia todo: ver cagografia.js
+ 	window.onload = function() {   
+ 		App.init(); 
+ 	}
 	 
-	     
-	   function init(){ 		  // ACA USA TABLETOP PARA TRAER LOS DATOS DE LA SPREADSHEET A UN HERMOSO ARRAY. Cuando termina de cargar los datos, llama a la funcion renderD3();
-			  if(localStorage && localStorage.cargoData){
-				renderD3(JSON.parse(localStorage.cargoData));
-			  }else{
-				  Tabletop.init( { key: "https://docs.google.com/spreadsheet/pub?key=0Av8QEY2w-qTYdFViaG5ULTlUQ1Q4M3AxS1NvcWI0UlE&single=true&gid=0&output=html",
-								 callback: function(data){
-									if(localStorage){
-										localStorage.cargoData = JSON.stringify(data);
-									}
-									renderD3(data);
-								 },
-								 simpleSheet: true } );
-			 }
-		}
-	  
-
-		function getAniosMasUsados(corte){
-			var anios = iconTestData.map(function(cargo){return parseInt(cargo.times.starting_time)});
-				anios.concat(iconTestData.map(function(cargo){return parseInt(cargo.times.ending_time)}));
-			var i, count = {};
-			for(i=0;i<anios.length;i++){
-				if(count[anios[i]]){
-					count[anios[i]]++;
-				} else {
-					count[anios[i]] = 1;
-				}
-			}
-			var toOrder = [];
-			for(year in count){
-				toOrder.push({ anio : year, veces : count[year] });
-			}
-			return toOrder.sort(function(item1, item2){ return item2.veces - item1.veces }).slice(0,corte);
-		}
-
-
-
-      function preFilterData(data){ // ACA AJUSTA LOS DATOS QUE VIENEN DE LA SPREADSHET Y LOS TOQUETEA UN POCO, le pone los nombres correctos
-	    var resp = [];
-		var cargoID = 0;
-        var lastName = "";
-		data.forEach(function(e,i){
-          if(lastName != e['nombre']){
-            cargoID ++;
-          }
-          lastName = e['nombre'];
-          var endTime = Number(e['fechafinyear']); 
-          if(isNaN(e['fechafinyear'])){
-            endTime = 2013;
-          }
-          var unit = {
-            label: e['nombre'], 
-            times: {"starting_time": Number(e['fechainicioyear']), "ending_time": endTime },
-			cargoID: cargoID,
-            cargo: e['cargonominal'],
-            territorio: e['territorio'],
-			cargoTipo: e['cargotipo'],
-			dura: Number(e['duracioncargo'])
-          };
-          resp.push(unit);
-        });
-        return resp;
-      }
-
-
-	  function renderD3(data, tabletop) {	// ESTA ES LA FUNC. QUE REALMENTE DIBUJA
-		    iconTestData = preFilterData(data); // iconTestData es donde almacenamos los datos de la spreadsheet ya formateaditos
-			var svgWidth = 1500;
-			var svgHeight = 4000;
-			var marginSVG = 10;
-			var itemHeight = 25;
-			var spacingY = 10;
-			var primerStartingYear = d3.min(iconTestData, function(d) { return d.times.starting_time});
-			var ultimoEndingYear = d3.max(iconTestData, function(d) { return d.times.ending_time});
-			
-			var xScale = d3.scale.linear()  // DEFINE ESCALA/RANGO DE EJE X
-						.domain([primerStartingYear-5,ultimoEndingYear+5]) // RANGO DE AÑOS DE ENTRADA
-						.rangeRound([1,svgWidth]); // ANCHO MAXIMO DEL CUADRO EN PIXELES
-			
-			
-	//*** ARMADO DEL SVG ****************			
-			var svg = d3.select("#timeline").append("svg")	
-						.attr("width", svgWidth)
-						.attr("height", svgHeight)
-
-
-	//*** CIRCULITO QUE MARCA EL AÑO CUANDO EL MOUSE SE MUEVE ****************
-			var yearMarker = svg.append("g")
-						.attr("class", "yearMarker")
-						.style("display","none")
-
-			yearMarker.append("circle")
-						.attr("r", 5)
-
-				  	svg.on("mouseover", function() { yearMarker.style("display", null); })
-					  	.on("mouseout", function() { yearMarker.style("display", "none"); })
-					  	.on("mousemove", mousemove);
-
-//*** COSAS QUE PASAN CUANDO EL MOUSE SE MUEVE ****************
-
-			function mousemove() {
-								yearMarker.attr("transform", "translate(" + d3.mouse(this)[0] + ","+(marginSVG+0.5)+")");
-				  }
-						  
-						  
-//*** COMIENZA LA CONSTRUCCION DEL CHART ****************
-
-
-			var itemsCargo = svg.selectAll("g")			// aca conecta los datos con los G (groups = itemCargos)
-						.data(iconTestData)				
-						.enter()
-						.append("g")
-						.attr("class", "itemsCargo")
- 						.attr("transform", function(d, i) {
-									if (!d.dura || (d.times.starting_time+d.dura >= d.times.ending_time)){
-										var posY = d.cargoID*(itemHeight + spacingY);										
-									}else{
-										var posY = d.cargoID*(itemHeight + spacingY + itemHeight);
-									}
-									var posY = d.cargoID*(itemHeight + spacingY);	
-								return ("translate(" + xScale(d.times.starting_time) + "," + posY + ")");
-									
-								})
-
-
-			var	rectangles = itemsCargo.append("rect") 	// aca agrega los rectangulos
-						.attr("class", function(d, i) {
-									if(d.cargo.indexOf("presidente")){
-										return d.cargoTipo;
-									}else{
-										return "presidente " + d.cargoTipo;
-									}
-								})
-	
-						.attr("height", itemHeight)
-						.attr("width", function(d, i) {
-									var finalWidth = xScale(d.times['ending_time']) - xScale(d.times['starting_time']);
-									if (finalWidth > 0){
-										return finalWidth-1;									
-									} else {
-										return 3;
-									}
-	
-								})
-								
-						itemsCargo.append("svg:title").text(function(d,i){		// aqui agrega los tooltip (title)
-								 return (d['label']+'|'+d['cargo']+'|'+d.times['starting_time']+':'+d.times['ending_time'])
-							})
-							
-			var inLabels = itemsCargo.append("text")
-						.text(function(d){return d.cargo})
-						.attr("x", 3)
-						.attr("y", 10)
-						.attr("class","miniLabels");
-
-			var inLabelitos = itemsCargo.append("text")
-						.text(function(d){return d.territorio})
-						.attr("x", 3)
-						.attr("y", 19)
-						.attr("class","miniLabels microLabels");
-						
-						
-							
-			var ticksAxis = getAniosMasUsados(20).map(function(item){return item.anio})
-			 	ticksAxis.push(primerStartingYear - 3 , ultimoEndingYear + 3);
-			var xAxis = d3.svg.axis()
-						.scale(xScale)
-						.orient("bottom")
-						.tickFormat(d3.format("0"))
-						.tickValues(ticksAxis)
-				svg.append("g").attr("class", "axis")
-						.attr("transform", "translate(0," + marginSVG + ")")
-						.call(xAxis);
-					
-					
-		
-		}
-			  
   </script>
 
 
@@ -194,7 +20,6 @@
   <div>
     <h3>Cargografias 0.2 - rused</h3>
     <h5>Linea de tiempo de funcionarios argentinos</h5>
-    <div id="hoverInfo"></div>
     <div id="timeline"></div>
   </div>
   

@@ -156,10 +156,13 @@ var App;
 
                                 //Lleno el contenedor con cargos
                                 var cargos = cargosContainer
-                                    .selectAll("rect")
+                                    .selectAll("g")
                                     .data(d.value.cargos)
                                     .enter()
-                                    .append("rect")
+                                    .append("g")
+									.attr("transform", function(d){return ("translate(" + xScale(d.desde) + ",0)");})
+								
+								var rectangleCargo = cargos.append("rect")
                                     .attr("class", function(d, i) {
                                             if(d.cargo.indexOf("presidente")){
                                                 return d.cargoTipo;
@@ -167,7 +170,7 @@ var App;
                                                 return "presidente " + d.cargoTipo;
                                             }
                                         })
-                                    .attr("x", function(d){return xScale(d.desde);})
+                                    
                                     .attr("height", itemHeight)
                                     .attr("width", function(d, i) {
                                             var finalWidth = xScale(d.hasta) - xScale(d.desde);
@@ -176,21 +179,21 @@ var App;
                                             } else {
                                                 return 3;
                                             }
-                                    });
+                                    	})
 
                                 //Agrego titulo al rect - no anda
-                                cargos.append("text")
+								var inLabels = cargos.append("text")
                                     .text(function(d){return d.cargo;})
                                     .attr("x", 3)
                                     .attr("y", 10)
-                                    .attr("class","miniLabels");
+                                    .attr("class","miniLabels")
                                 
                                 //Agrego subtitulo al rect - no anda
-                                cargos.append("text")
+                               	var inLabelitos = cargos.append("text")
                                     .text(function(d){return d.territorio;})
                                     .attr("x", 3)
                                     .attr("y", 19)
-                                    .attr("class","miniLabels microLabels");
+                                    .attr("class","miniLabels microLabels")
 
                                 //Agrego funcionalidad del tooltip
                                 cargos.on("mouseover", function(d) {      

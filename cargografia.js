@@ -8,10 +8,11 @@ var App;
 
     // Inicia: Usa tabletop para traer data. 
     //Cuando termina de cargar los datos, llama a la funcion renderD3();
-    App.init = function () {
+       App.init = function () {
         var dataCargos = [];
         if(localStorage && localStorage.cargoData){
             dataCargos = JSON.parse(localStorage.cargoData);
+            App.renderD3(dataCargos);
         }else{
           tabletop.init(
             {
@@ -19,12 +20,12 @@ var App;
                 callback: function(data){
                     if(localStorage){
                         dataCargos = JSON.stringify(data);
+                        App.renderD3(dataCargos);
                     }
                 },
                 simpleSheet: true 
             });
         }
-        App.renderD3(dataCargos);
     };
 
     //PreFilterData: ACA AJUSTA LOS DATOS QUE VIENEN DE LA SPREADSHET Y LOS TOQUETEA UN POCO, 

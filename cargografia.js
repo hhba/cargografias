@@ -19,9 +19,9 @@ var App;
                 key: "https://docs.google.com/spreadsheet/pub?key=0Av8QEY2w-qTYdFViaG5ULTlUQ1Q4M3AxS1NvcWI0UlE&single=true&gid=0&output=html",
                 callback: function(data){
                     if(localStorage){
-                        dataCargos = JSON.stringify(data);
-                        App.renderD3(dataCargos);
+                        localStorage.cargoData = JSON.stringify(data);
                     }
+                    App.renderD3(data);
                 },
                 simpleSheet: true 
             });

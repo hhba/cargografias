@@ -101,6 +101,7 @@ var App;
             itemHeight = 25,
             spacingY = 20,
             svgWidth = 1600,
+			alinearNombresIzq = 0,
 			lineasDivisorias = 1,
             svgHeight = newData.totalRenglones * (itemHeight + spacingY + 1 ),
             primerStartingYear = newData.limiteInferior,
@@ -166,13 +167,18 @@ var App;
 								}
 
                                 //Agrego el nombre del político
-                                politico
-                                .append("text")
+                              var nombrePol = politico.append("text")
                                 .text(d.value.nombre)
-                                .attr("x", 5)
-                                .attr("y", 18)
-                                .attr("class","nombreLabel");
-                                
+                                .attr("class","nombreLabel")
+								.attr("y", 18);
+								
+								if(alinearNombresIzq){
+									nombrePol.style("text-anchor","end")
+			                                .attr("x", xScale(Number(d.value.cargos[0].desde))-15)
+								} else {
+									nombrePol.attr("x",5)
+								}
+
                                 //Agrego el contenedor de cargos
                                 var cargosContainer = politico
                                                     .append("g")

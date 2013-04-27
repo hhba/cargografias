@@ -34,20 +34,40 @@ var App;
             primerStartingYear = 2000, 
             ultimoEndingYear = 2000,
             anioMasUsados = App.getAniosMasUsados(data,20),
-            totalPoliticos = 0;
+            totalPoliticos = 0,
+            totalRenglones = 0,
+            anioDeFinAnterior = 9000; //muy alto
 
         data.forEach(function(e,i){
-            var endTime = Number(e['fechafinyear']); 
+            var startTime = Number(e['fechainicioyear']),
+                endTime = Number(e['fechafinyear']),
+                offsetY = 0; 
+
             if(lastName != e['nombre']){
                 cargoID ++;
             }
             lastName = e['nombre'];
-            if(isNaN(e['fechafinyear'])){
+            if(isNaN(endTime)){
                 endTime = 2013;
             }
 
+            if(!resp[cargoID]) {
+                anioDeFinAnterior = false; //le pongo false porque es el primero.
+                totalPoliticos++;
+                totalRenglones++;
+                resp[cargoID] = {"nombre":e['nombre'], "cargoID":cargoID, "lineas":1, "cargos":[]};
+            }
+
+            //Es un puesto que interrumpe al anterior y necesita nuevo renglon?
+            if(anioDeFinAnterior && (startTime < anioDeFinAnterior)) {
+                offsetY++;
+                totalRenglones++;
+                resp[cargoID].lineas++;
+            }
+            anioDeFinAnterior = endTime;
+
             //Verifico limites
-            primerStartingYear = (primerStartingYear>Number(e['fechainicioyear']))?Number(e['fechainicioyear']):primerStartingYear;
+            primerStartingYear = (primerStartingYear>startTime)?startTime:primerStartingYear;
             ultimoEndingYear = (ultimoEndingYear<endTime)?endTime:ultimoEndingYear;
 
             var unit = {
@@ -60,19 +80,17 @@ var App;
                 cargoTipo: e['cargotipo'],
                 dura: Number(e['duracioncargo']),
 				cargoExt: e['cargoext'],
-				offsetY: 0//(e['fechainicioyear']+e['cargoext']
+				offsetY: offsetY
             };
-            if(!resp[cargoID]) {
-                totalPoliticos++;
-                resp[cargoID] = {"nombre":e['nombre'], "cargoID":cargoID, "cargos":[]};
-            }
+
             resp[cargoID].cargos.push(unit);
         });
         return {data:resp,
                 limiteInferior:primerStartingYear,
                 limiteSuperior:ultimoEndingYear,
                 anios:anioMasUsados,
-                totalRenglones:totalPoliticos
+                totalPoliticos:totalPoliticos,
+                totalRenglones:totalRenglones
                 };
       }
 
@@ -86,7 +104,8 @@ var App;
 			lineasDivisorias = 1,
             svgHeight = newData.totalRenglones * (itemHeight + spacingY + 1 ),
             primerStartingYear = newData.limiteInferior,
-            ultimoEndingYear = newData.limiteSuperior;
+            ultimoEndingYear = newData.limiteSuperior,
+            lineasPorPolitico = [];
         
         var xScale = d3.scale.linear()  // DEFINE ESCALA/RANGO DE EJE X
                     .domain([primerStartingYear-5,ultimoEndingYear+5]) // RANGO DE AÑOS DE ENTRADA
@@ -122,6 +141,8 @@ var App;
             tooltip.style("left", (d3.event.pageX) + "px").style("top", (d3.event.pageY - 28) + "px");
         }
 
+        var heightAcumulado = 0;
+
         // COMIENZA LA CONSTRUCCION DEL CHART 
         var itemsPolitico = svg.selectAll("g")
                             .data(d3.entries(newData.data))             
@@ -130,20 +151,18 @@ var App;
                             .attr("class", "politico")
                             .attr("id",  function(d, i) { return "politico-"+d.value.cargoID;})
                             .each(function(d,i){ //procesa cada politico
-                               //Cálculo de la variación
-                                var posY = d.value.cargoID*(itemHeight + spacingY), 
-                                    posX = 0,
-                                    politico = svg.select('#politico-'+d.value.cargoID);//Grupo de cada político
+
+                                var politico = svg.select('#politico-'+d.value.cargoID);//Grupo de cada político
 
                                 //Agrego la línea
 								if(lineasDivisorias){
-                                politico
-                                .append("line")
-                                .attr("x1",0)
-                                .attr("y1",itemHeight + (spacingY/2) )
-                                .attr("x2",svgWidth)
-                                .attr("y2",itemHeight + (spacingY/2) )
-                                .attr("stroke","#CCC");
+                                    politico
+                                    .append("line")
+                                    .attr("x1",0)
+                                    .attr("y1",d.value.lineas * itemHeight + (spacingY/2) )
+                                    .attr("x2",svgWidth)
+                                    .attr("y2",d.value.lineas * itemHeight + (spacingY/2) )
+                                    .attr("stroke","#CCC");
 								}
 
                                 //Agrego el nombre del político
@@ -164,11 +183,16 @@ var App;
                                     .selectAll("g")
                                     .data(d.value.cargos)
                                     .enter()
-                                    .append("g")
-					
+                                    .append("g");
+					   
+
 								cargos.attr("transform", function(d){
-										return ("translate(" + xScale(d.desde) + ","+d.offsetY*itemHeight+")");
-										})
+
+                                    if(d.offsetY>0){
+                                        //do something
+                                    }
+									return ("translate(" + xScale(d.desde) + ","+d.offsetY*itemHeight+")");
+								});
 								
 								var rectangleCargo = cargos.append("rect")
                                     .attr("class", function(d, i) {
@@ -224,8 +248,13 @@ var App;
                             })
                             .attr("transform", function(d, i) {
                                 //Cálculo de la variación
-                                var posY = d.value.cargoID*(itemHeight + spacingY),
-                                posX = 0;
+                                var posX = 0;
+                                heightAcumulado = heightAcumulado + ( itemHeight) + spacingY;
+
+                                var posY = heightAcumulado;
+
+                                heightAcumulado = heightAcumulado + (d.value.lineas-1)*itemHeight;
+
                                 return ("translate(" + posX + "," + posY + ")");
                             });
 

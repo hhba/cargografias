@@ -36,12 +36,12 @@ var App;
             anioMasUsados = App.getAniosMasUsados(data,20),
             totalPoliticos = 0,
             totalRenglones = 0,
-            anioDeFinAnterior = 9000; //muy alto
+            anioDeFinAnterior = 9000, //muy alto
+			offsetY = 0;
 
         data.forEach(function(e,i){
             var startTime = Number(e['fechainicioyear']),
-                endTime = Number(e['fechafinyear']),
-                offsetY = 0; 
+                endTime = Number(e['fechafinyear']); 
 
             if(lastName != e['nombre']){
                 cargoID ++;
@@ -53,18 +53,20 @@ var App;
 
             if(!resp[cargoID]) {
                 anioDeFinAnterior = false; //le pongo false porque es el primero.
+				offsetY = 0;
                 totalPoliticos++;
                 totalRenglones++;
                 resp[cargoID] = {"nombre":e['nombre'], "cargoID":cargoID, "lineas":1, "cargos":[]};
-            }
+				
+            } 
 
             //Es un puesto que interrumpe al anterior y necesita nuevo renglon?
-            if(anioDeFinAnterior && (startTime < anioDeFinAnterior)) {
+			if(i && Number(data[i-1]['duracioncargo']) && ((Number(data[i-1]['fechainicioyear'])+Number(data[i-1]['duracioncargo'])) > e['fechainicioyear'])) {
                 offsetY++;
                 totalRenglones++;
                 resp[cargoID].lineas++;
             }
-            anioDeFinAnterior = endTime;
+
 
             //Verifico limites
             primerStartingYear = (primerStartingYear>startTime)?startTime:primerStartingYear;
@@ -211,6 +213,22 @@ var App;
                                     
                                     .attr("height", itemHeight)
                                     .attr("width", function(d, i) {
+                                            var finalWidth = xScale(d.hasta) - xScale(d.desde);
+                                            if (finalWidth > 0){
+                                                return finalWidth-1;                                    
+                                            } else {
+                                                return 3;
+                                            }
+                                    	})
+
+								var rectangleVacio = cargos.append("rect")
+                                    .attr("class", "vacio")
+                                    .attr("height", itemHeight)
+									.attr("width", function(d, i) {
+                                            var finalWidth = xScale(d.desde+d.dura) - xScale(d.hasta);
+                                                return finalWidth;                                    
+                                    	})
+                                    .attr("x", function(d, i) {
                                             var finalWidth = xScale(d.hasta) - xScale(d.desde);
                                             if (finalWidth > 0){
                                                 return finalWidth-1;                                    

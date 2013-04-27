@@ -73,6 +73,10 @@
 		fill-opacity:100%;
 		color:#FF0;
 	}
+	.vacio{
+		fill:rgba(140, 140, 140, 0.2);
+	
+	}
 
 	.miniLabels{
 		font-family:Tahoma, Geneva, sans-serif;
